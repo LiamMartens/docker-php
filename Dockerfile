@@ -11,7 +11,7 @@ RUN adduser -D www-data
 RUN apk update && apk upgrade
 
 # add packages
-RUN apk add tzdata perl curl bash
+RUN apk add tzdata perl curl bash git
 
 # install php 7
 ENV PHPV=7
