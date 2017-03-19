@@ -54,8 +54,6 @@ RUN apk add --update --no-cache \
     php$PHPV-common \
     php$PHPV-redis@testing
 
-RUN apk add git alpine-sdk gcc
-
 # create php directory
 RUN mkdir -p /etc/php7 /var/log/php7 /usr/lib/php7 /var/www && \
     chown -R www-data:www-data /etc/php7 /var/log/php7 /usr/lib/php7 /var/www
