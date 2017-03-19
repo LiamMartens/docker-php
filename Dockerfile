@@ -52,6 +52,7 @@ RUN apk add --update --no-cache \
     php$PHPV-pear \
     php$PHPV-fpm \
     php$PHPV-common \
+    php$PHPV-phar \
     php$PHPV-redis@testing
 
 # create php directory
