@@ -54,6 +54,10 @@ RUN apk add --update --no-cache \
     php$PHPV-common \
     php$PHPV-phar \
     php$PHPV-redis@testing
+# install yaml 2.0.0 extension
+RUN apk add php$PHPV-dev autoconf yaml-dev alpine-sdk
+RUN perl -pi -e "s/-C -n -q/-C -q/" `which pecl` && pecl install yaml-2.0.0
+RUN apk del php$PHPV-dev autoconf yaml-dev alpine-sdk
 
 # create php directory
 RUN mkdir -p /etc/php7 /var/log/php7 /usr/lib/php7 /var/www && \
