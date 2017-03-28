@@ -76,4 +76,4 @@ RUN chmod +x /home/www-data/run.sh
 COPY scripts/continue.sh /home/www-data/continue.sh
 RUN chmod +x /home/www-data/continue.sh
 
-ENTRYPOINT ["/home/www-data/run.sh", "su", "-m", "root", "-c", "/home/www-data/continue.sh /bin/sh"]
+ENTRYPOINT ["/home/www-data/run.sh", "su", "-m", "www-data", "-c", "/home/www-data/continue.sh /bin/sh"]
