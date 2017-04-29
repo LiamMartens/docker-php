@@ -58,6 +58,8 @@ RUN apk add --update --no-cache \
 RUN apk add php$PHPV-dev autoconf yaml-dev yaml alpine-sdk
 RUN perl -pi -e "s/-C -n -q/-C -q/" `which pecl` && pecl install yaml-2.0.0
 RUN apk del php$PHPV-dev autoconf yaml-dev alpine-sdk
+# move redis.so extension if it's not in /usr/lib/php$PHPV/modules
+RUN if [ -f /usr/lib/php7/redis.so ]; then mv /usr/lib/php$PHPV/redis.so /usr/lib/php$PHPV/modules/redis.so; fi
 
 # create php directory
 RUN mkdir -p /etc/php7 /var/log/php7 /usr/lib/php7 /var/www && \
