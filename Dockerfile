@@ -1,8 +1,5 @@
-FROM alpine:edge
+FROM alpine:3.6
 MAINTAINER Liam Martens (hi@liammartens.com)
-
-# add testing branch
-RUN echo @testing http://dl-cdn.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories
 
 # add www-data user
 RUN adduser -D www-data
