@@ -53,6 +53,7 @@ RUN apk add --update --no-cache \
     php$PHPV-xmlwriter \
     php$PHPV-tokenizer \
     php$PHPV-fileinfo \
+    php$PHPV-posix \
     php$PHPV-imagick
 
 # install yaml 2.0.0 extension
