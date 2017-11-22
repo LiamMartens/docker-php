@@ -3,7 +3,7 @@ MAINTAINER Liam Martens (hi@liammartens.com)
 
 # set default shell
 ENV SHELL=/bin/bash
-ENV OWN_DIRS='/var/www /etc/php7 /var/log/php7'
+ENV OWN_DIRS='/home/www-data/files /var/www /etc/php7 /var/log/php7'
 
 # add www-data user
 RUN adduser -D www-data
@@ -97,6 +97,6 @@ RUN chmod +x continue.sh
 RUN chown -R www-data:www-data ../
 
 # set volume
-VOLUME ["/etc/php7", "/var/log/php7", "/var/www"]
+VOLUME ["/etc/php7", "/var/log/php7", "/var/www", "/home/www-data/files"]
 
 ENTRYPOINT ["/home/www-data/run.sh", "su", "-m", "www-data", "-c", "/home/www-data/continue.sh"]
