@@ -66,7 +66,7 @@ checkPhpIni
 
 # run user scripts
 if [[ -d ./files/.$(whoami) ]]; then
-	chmod +x ./files.$(whoami)/*
+	chmod +x ./files/.$(whoami)/*
 	run-parts ./files/.$(whoami)
 fi
 
