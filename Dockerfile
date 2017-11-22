@@ -82,17 +82,21 @@ RUN mkdir -p /etc/php7 /var/log/php7 /usr/lib/php7 /var/www && \
 RUN touch /etc/timezone /etc/localtime && \
     chown www-data:www-data /etc/localtime /etc/timezone
 
-# copy /etc/profile to .profile
-RUN cp /etc/profile /home/www-data/.profile
-RUN chown www-data:www-data /home/www-data/.profile
+# change workdir
+WORKDIR /home/www-data
+# add global composer to profile
+RUN mkdir .composer && echo 'export PATH=~/.composer/vendor/bin:$PATH' >> .profile && echo '. ~/.profile' >> .bashrc
+
+# copy run files
+COPY scripts/run.sh run.sh
+RUN chmod +x run.sh
+COPY scripts/continue.sh continue.sh
+RUN chmod +x continue.sh
+
+# chown home directory
+RUN chown -R www-data:www-data ../
 
 # set volume
 VOLUME ["/etc/php7", "/var/log/php7", "/var/www"]
-
-# copy run file
-COPY scripts/run.sh /home/www-data/run.sh
-RUN chmod +x /home/www-data/run.sh
-COPY scripts/continue.sh /home/www-data/continue.sh
-RUN chmod +x /home/www-data/continue.sh
 
 ENTRYPOINT ["/home/www-data/run.sh", "su", "-m", "www-data", "-c", "/home/www-data/continue.sh"]

@@ -64,6 +64,7 @@ checkPhpPool
 perl -p -i.bak -e "s/;*date.timezone\s*=.*/date.timezone = $TIMEZONE/gi" /etc/php7/php.ini
 checkPhpIni
 
+# start php fpm
 echo "Starting PHP FPM on $PHP_PORT"
 php-fpm7
 
