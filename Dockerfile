@@ -1,6 +1,10 @@
 FROM alpine:3.6
 MAINTAINER Liam Martens (hi@liammartens.com)
 
+# set default shell
+ENV SHELL=/bin/bash
+ENV OWN_DIRS='/var/www /etc/php7 /var/log/php7'
+
 # add www-data user
 RUN adduser -D www-data
 
@@ -78,6 +82,10 @@ RUN mkdir -p /etc/php7 /var/log/php7 /usr/lib/php7 /var/www && \
 RUN touch /etc/timezone /etc/localtime && \
     chown www-data:www-data /etc/localtime /etc/timezone
 
+# copy /etc/profile to .profile
+RUN cp /etc/profile /home/www-data/.profile
+RUN chown www-data:www-data /home/www-data/.profile
+
 # set volume
 VOLUME ["/etc/php7", "/var/log/php7", "/var/www"]
 
@@ -87,4 +95,4 @@ RUN chmod +x /home/www-data/run.sh
 COPY scripts/continue.sh /home/www-data/continue.sh
 RUN chmod +x /home/www-data/continue.sh
 
-ENTRYPOINT ["/home/www-data/run.sh", "su", "-m", "www-data", "-c", "/home/www-data/continue.sh /bin/sh"]
+ENTRYPOINT ["/home/www-data/run.sh", "su", "-m", "www-data", "-c", "/home/www-data/continue.sh"]

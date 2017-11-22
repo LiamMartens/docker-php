@@ -67,4 +67,4 @@ checkPhpIni
 echo "Starting PHP FPM on $PHP_PORT"
 php-fpm7
 
-exec "$@"
+$SHELL
