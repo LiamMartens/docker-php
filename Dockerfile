@@ -1,19 +1,8 @@
-FROM alpine:3.6
-MAINTAINER Liam Martens (hi@liammartens.com)
+FROM liammartens/alpine
+LABEL maintainer="Liam Martens <hi@liammartens.com>"
 
 # set default shell
-ENV SHELL=/bin/bash
-ENV OWN_BY=':www-data'
-ENV OWN_DIRS='/home/www-data/files /var/www /etc/php7 /var/log/php7'
-
-# add www-data user
-RUN adduser -D www-data
-
-# run updates
-RUN apk update && apk upgrade
-
-# add packages
-RUN apk add tzdata perl curl bash git
+ENV OWN_DIRS="${OWN_DIRS} /var/www /etc/php7 /var/log/php7"
 
 # install php 7
 ENV PHPV=7
@@ -77,27 +66,18 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" &&
 
 # create php directory
 RUN mkdir -p /etc/php7 /var/log/php7 /usr/lib/php7 /var/www && \
-    chown -R www-data:www-data /etc/php7 /var/log/php7 /usr/lib/php7 /var/www
-
-# chown timezone files
-RUN touch /etc/timezone /etc/localtime && \
-    chown www-data:www-data /etc/localtime /etc/timezone
-
-# change workdir
-WORKDIR /home/www-data
-# add global composer to profile
-RUN mkdir .composer && echo 'export PATH=~/.composer/vendor/bin:$PATH' >> .profile && echo '. ~/.profile' >> .bashrc
+    chown -R ${USER}:${USER} /etc/php7 /var/log/php7 /usr/lib/php7 /var/www
 
 # copy run files
-COPY scripts/run.sh run.sh
-RUN chmod +x run.sh
-COPY scripts/continue.sh continue.sh
-RUN chmod +x continue.sh
+COPY scripts/continue.sh ${ENV_DIR}/scripts/continue.sh
+RUN chmod +x ${ENV_DIR}/scripts/continue.sh
 
+# change workdir
+WORKDIR /home/${USER}
+# add global composer to profile
+RUN mkdir .composer && echo 'export PATH=~/.composer/vendor/bin:$PATH' >> .profile && echo '. ~/.profile' >> .bashrc
 # chown home directory
-RUN chown -R www-data:www-data ../
+RUN chown -R ${USER}:${USER} ../${USER}
 
 # set volume
-VOLUME ["/etc/php7", "/var/log/php7", "/var/www", "/home/www-data/files"]
-
-ENTRYPOINT ["/home/www-data/run.sh", "su", "-m", "www-data", "-c", "/home/www-data/continue.sh"]
+VOLUME /etc/php7 /var/log/php7 /var/www

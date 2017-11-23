@@ -1,5 +1,5 @@
 #!/bin/bash
-export HOME=/home/www-data
+export HOME=/home/$(whoami)
 
 if [ -z "$PHP_PORT" ]; then
 	export PHP_PORT=9000
@@ -67,11 +67,10 @@ perl -p -i.bak -e "s/;*date.timezone\s*=.*/date.timezone = $TIMEZONE/gi" /etc/ph
 checkPhpIni
 
 # run user scripts
-if [[ -d ./files/.$(whoami) ]]; then
-	chmod +x ./files/.$(whoami)/*
-	run-parts ./files/.$(whoami)
+if [[ -d ${ENV_DIR}/files/.$(whoami) ]]; then
+	chmod +x ${ENV_DIR}/files/.$(whoami)/*
+	run-parts ${ENV_DIR}/files/.$(whoami)
 fi
-
 # start php fpm
 echo "Starting PHP FPM on $PHP_PORT"
 php-fpm7
