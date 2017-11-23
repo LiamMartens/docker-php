@@ -44,14 +44,16 @@ ENV_VARS=($(env))
 for VAR in "${ENV_VARS[@]}"; do
 	VAR_NAME=$(echo $VAR | cut -d'=' -f 1)
 	VAR_VALUE=$(echo $VAR | cut -d'=' -f 2)
-	if [[ "$VAR_NAME" =~ "PHP_"* ]] && [[ "$VAR_NAME" != "PHP_PORT" ]]; then
-		PHP_SETTING=$(echo $VAR_NAME | cut -d'_' -f 2-)
-		PHP_SETTING=$(echo $PHP_SETTING | awk '{print tolower($0)}')
-		PHP_SETTING=$(echo $PHP_SETTING | perl -pe "s/__/./")
-		perl -p -i.bak -e "s/^$PHP_SETTING\s*=\s*.*/$PHP_SETTING = $VAR_VALUE/gi" /etc/php7/php.ini
-		checkPhpIni
-	else
-		WWWVARS="$WWWVARS"$'\n'"env[$VAR_NAME]=$VAR_VALUE"
+	if [[ $VAR_VALUE != "" ]]; then
+		if [[ "$VAR_NAME" =~ "PHP_"* ]] && [[ "$VAR_NAME" != "PHP_PORT" ]]; then
+			PHP_SETTING=$(echo $VAR_NAME | cut -d'_' -f 2-)
+			PHP_SETTING=$(echo $PHP_SETTING | awk '{print tolower($0)}')
+			PHP_SETTING=$(echo $PHP_SETTING | perl -pe "s/__/./")
+			perl -p -i.bak -e "s/^$PHP_SETTING\s*=\s*.*/$PHP_SETTING = $VAR_VALUE/gi" /etc/php7/php.ini
+			checkPhpIni
+		else
+			WWWVARS="$WWWVARS"$'\n'"env[$VAR_NAME]=$VAR_VALUE"
+		fi
 	fi
 done
 echo "$WWWVARS" > /etc/php7/php-fpm.d/env.conf
