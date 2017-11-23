@@ -3,6 +3,7 @@ MAINTAINER Liam Martens (hi@liammartens.com)
 
 # set default shell
 ENV SHELL=/bin/bash
+ENV OWN_BY=':www-data'
 ENV OWN_DIRS='/home/www-data/files /var/www /etc/php7 /var/log/php7'
 
 # add www-data user

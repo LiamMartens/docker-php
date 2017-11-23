@@ -1,5 +1,5 @@
 #!/bin/bash
-chown -R www-data:www-data $OWN_DIRS
+chown -R $OWN_BY $OWN_DIRS
 # run as root scripts
 if [[ -d ./files/.root ]]; then
     chmod +x ./files/.root/*
