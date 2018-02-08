@@ -1,83 +1,105 @@
+ARG USER=www-data
+ARG PHPV=7
 FROM liammartens/alpine
 LABEL maintainer="Liam Martens <hi@liammartens.com>"
 
-# set default shell
-ENV OWN_DIRS="${OWN_DIRS} /var/www /etc/php7 /var/log/php7"
+# @env Set PHP version
+ENV PHPV=${PHPV:-7}
 
-# install php 7
-ENV PHPV=7
+# @user Switch back to root user
+USER root
+
+# @run Install PHP
 RUN apk add --update --no-cache \
-    php$PHPV-mcrypt \
-    php$PHPV-soap \
-    php$PHPV-openssl \
-    php$PHPV-gmp \
-    php$PHPV-pdo_odbc \
-    php$PHPV-json \
-    php$PHPV-dom \
-    php$PHPV-pdo \
-    php$PHPV-zip \
-    php$PHPV-mysqli \
-    php$PHPV-sqlite3 \
-    php$PHPV-pdo_pgsql \
-    php$PHPV-bcmath \
-    php$PHPV-opcache \
-    php$PHPV-intl \
-    php$PHPV-mbstring \
-    php$PHPV-sockets \
-    php$PHPV-zlib \
-    php$PHPV-xml \
-    php$PHPV-session \
-    php$PHPV-pcntl \
-    php$PHPV-gd \
-    php$PHPV-odbc \
-    php$PHPV-pdo_mysql \
-    php$PHPV-pdo_sqlite \
-    php$PHPV-gettext \
-    php$PHPV-xmlreader \
-    php$PHPV-xmlrpc \
-    php$PHPV-bz2 \
-    php$PHPV-iconv \
-    php$PHPV-pdo_dblib \
-    php$PHPV-curl \
-    php$PHPV-ctype \
-    php$PHPV-pear \
-    php$PHPV-fpm \
-    php$PHPV-common \
-    php$PHPV-phar \
-    php$PHPV-xmlwriter \
-    php$PHPV-tokenizer \
-    php$PHPV-fileinfo \
-    php$PHPV-posix \
-    php$PHPV-imagick
+    php${PHPV}-mcrypt \
+    php${PHPV}-soap \
+    php${PHPV}-openssl \
+    php${PHPV}-gmp \
+    php${PHPV}-pdo_odbc \
+    php${PHPV}-json \
+    php${PHPV}-dom \
+    php${PHPV}-pdo \
+    php${PHPV}-zip \
+    php${PHPV}-mysqli \
+    php${PHPV}-sqlite3 \
+    php${PHPV}-pdo_pgsql \
+    php${PHPV}-bcmath \
+    php${PHPV}-opcache \
+    php${PHPV}-intl \
+    php${PHPV}-mbstring \
+    php${PHPV}-sockets \
+    php${PHPV}-zlib \
+    php${PHPV}-xml \
+    php${PHPV}-session \
+    php${PHPV}-pcntl \
+    php${PHPV}-gd \
+    php${PHPV}-odbc \
+    php${PHPV}-pdo_mysql \
+    php${PHPV}-pdo_sqlite \
+    php${PHPV}-gettext \
+    php${PHPV}-xmlreader \
+    php${PHPV}-xmlrpc \
+    php${PHPV}-bz2 \
+    php${PHPV}-iconv \
+    php${PHPV}-pdo_dblib \
+    php${PHPV}-curl \
+    php${PHPV}-ctype \
+    php${PHPV}-pear \
+    php${PHPV}-fpm \
+    php${PHPV}-common \
+    php${PHPV}-phar \
+    php${PHPV}-xmlwriter \
+    php${PHPV}-tokenizer \
+    php${PHPV}-fileinfo \
+    php${PHPV}-posix \
+    php${PHPV}-imagick
 
-# install yaml 2.0.0 extension
-RUN apk add php$PHPV-dev autoconf yaml-dev yaml alpine-sdk
-RUN perl -pi -e "s/-C -n -q/-C -q/" `which pecl` && pecl install yaml-2.0.0
-# install php-redis extension
-RUN git clone https://github.com/phpredis/phpredis
-RUN cd phpredis && phpize && ./configure && make && make install
-RUN rm -rf phpredis
-RUN apk del php$PHPV-dev autoconf yaml-dev alpine-sdk
+# @run Install yaml extension
+RUN apk add php${PHPV}-dev autoconf yaml-dev yaml alpine-sdk && \
+    perl -pi -e "s/-C -n -q/-C -q/" $(which pecl) && \
+    pecl install yaml-2.0.0
 
-# install composer globally
-RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \ 
+# @run Install php-redis extension
+RUN git clone https://github.com/phpredis/phpredis && \
+    cd phpredis && phpize && ./configure && make && make install && \
+    cd ../ && rm -rf phpredis
+
+# @run Remove the build packages
+RUN apk del php${PHPV}-dev autoconf yaml-dev alpine-sdk
+
+# @run Install composer globally
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
     php composer-setup.php && php -r "unlink('composer-setup.php');" && \
-    mv composer.phar /usr/local/bin/composer
+    mv composer.phar /usr/local/bin/composer && chmod +x /usr/local/bin/composer
 
-# create php directory
-RUN mkdir -p /etc/php7 /var/log/php7 /usr/lib/php7 /var/www && \
-    chown -R ${USER}:${USER} /etc/php7 /var/log/php7 /usr/lib/php7 /var/www
+# @run Create php and web directories
+RUN mkdir -p /etc/php${PHPV} /var/log/php${PHPV} /usr/lib/php${PHPV} /var/www
 
-# copy run files
-COPY scripts/continue.sh ${ENV_DIR}/scripts/continue.sh
-RUN chmod +x ${ENV_DIR}/scripts/continue.sh
+# @copy Copy default config files
+COPY conf/ /etc/php${PHPV}/
 
-# change workdir
+# @run chown
+RUN chown -R ${USER}:${USER} /etc/php${PHPV} /var/log/php${PHPV} /usr/lib/php${PHPV} /var/www
+
+# @workdir change workdir
 WORKDIR /home/${USER}
-# add global composer to profile
-RUN mkdir .composer && echo 'export PATH=~/.composer/vendor/bin:$PATH' >> .profile && echo '. ~/.profile' >> .bashrc
-# chown home directory
+
+# @run Add global composer bin to profile
+RUN mkdir .composer && \
+    echo 'export PATH=~/.composer/vendor/bin:$PATH' >> .profile &&\
+    echo '. ~/.profile' >> .bashrc
+
+# @run chown directory
 RUN chown -R ${USER}:${USER} ../${USER}
 
-# set volume
-VOLUME /etc/php7 /var/log/php7 /var/www
+# @volume add volumes
+VOLUME /etc/php${PHPV} /var/log/php${PHPV} /var/www
+
+# @copy Copy additional run files
+COPY .docker ${DOCKER_DIR}
+
+# @run Make the file(s) executable
+RUN chmod -R +x ${DOCKER_DIR}
+
+# @user Set user back to non-root
+USER ${USER}

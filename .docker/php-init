@@ -1,32 +1,20 @@
 #!/bin/bash
-export HOME=/home/$(whoami)
 
-if [ -z "$PHP_PORT" ]; then
-	export PHP_PORT=9000
-fi
-
-if [ -z "$TIMEZONE" ]; then
-	export TIMEZONE='UTC'
-fi
-
-# get ip addresses and export them as environment variables
-export PHP_TCP=`awk 'END{print $1}' /etc/hosts`
-
-# set timezone
-cat /usr/share/zoneinfo/$TIMEZONE > /etc/localtime
-echo $TIMEZONE > /etc/timezone
+# get the container IP address and export it as an environment variable
+export PHP_TCP=$(awk 'END{print $1}' /etc/hosts)
 
 # function to check php.ini config and bak
 checkPhpIni() {
-	if [[ `cat /etc/php7/php.ini` =~ "^\s*$" ]]; then
+	if [[ $(cat /etc/php7/php.ini) =~ "^\s*$" ]]; then
 		mv /etc/php7/php.ini.bak /etc/php7/php.ini
 	else
 		rm /etc/php7/php.ini.bak
 	fi
 }
+
 # function to check fpm www pool and bak
 checkPhpPool() {
-	if [[ `cat /etc/php7/php-fpm.d/www.conf` =~ "^\s*$" ]]; then
+	if [[ $(cat /etc/php7/php-fpm.d/www.conf) =~ "^\s*$" ]]; then
 		mv /etc/php7/php-fpm.d/www.conf.bak /etc/php7/php-fpm.d/www.conf
 	else
 		rm /etc/php7/php-fpm.d/www.conf.bak
@@ -65,14 +53,3 @@ checkPhpPool
 # set timezone
 perl -p -i.bak -e "s/;*date.timezone\s*=.*/date.timezone = $TIMEZONE/gi" /etc/php7/php.ini
 checkPhpIni
-
-# run user scripts
-if [[ -d ${ENV_DIR}/files/.$(whoami) ]]; then
-	chmod +x ${ENV_DIR}/files/.$(whoami)/*
-	run-parts ${ENV_DIR}/files/.$(whoami)
-fi
-# start php fpm
-echo "Starting PHP FPM on $PHP_PORT"
-php-fpm7
-
-$SHELL
