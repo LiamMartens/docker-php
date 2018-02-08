@@ -73,7 +73,7 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" &&
     mv composer.phar /usr/local/bin/composer && chmod +x /usr/local/bin/composer
 
 # @run Create php and web directories
-RUN mkdir -p /etc/php${PHPV} /var/log/php${PHPV} /usr/lib/php${PHPV} /var/www
+RUN rm -rf /etc/php${PHPV} && mkdir -p /etc/php${PHPV} /var/log/php${PHPV} /usr/lib/php${PHPV} /var/www
 
 # @copy Copy default config files
 COPY conf/ /etc/php${PHPV}/
@@ -101,5 +101,11 @@ COPY .docker ${DOCKER_DIR}
 # @run Make the file(s) executable
 RUN chmod -R +x ${DOCKER_DIR}
 
+# @run symlink php-fpm specific version
+RUN ln -s $(which php-fpm${PHPV}) /usr/local/bin/php-fpm
+
 # @user Set user back to non-root
 USER ${USER}
+
+# @cmd Set command to start php-fpm
+CMD [ "-c", "php-fpm -F" ]

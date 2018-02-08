@@ -3,6 +3,11 @@
 # get the container IP address and export it as an environment variable
 export PHP_TCP=$(awk 'END{print $1}' /etc/hosts)
 
+# check php port
+if [ -z "$PHP_PORT" ]; then
+	export PHP_PORT=9000
+fi
+
 # function to check php.ini config and bak
 checkPhpIni() {
 	if [[ $(cat /etc/php7/php.ini) =~ "^\s*$" ]]; then
@@ -47,7 +52,7 @@ done
 echo "$WWWVARS" > /etc/php7/php-fpm.d/env.conf
 
 # set php listen port
-perl -p -i.bak -e "s/listen\s*=\s*(.+):.+/listen = $PHP_TCP:$PHP_PORT/gi" /etc/php7/php-fpm.d/www.conf
+perl -p -i.bak -e "s/listen\s*=\s*(.+)(:.+)?/listen = $PHP_TCP:$PHP_PORT/gi" /etc/php7/php-fpm.d/www.conf
 checkPhpPool
 
 # set timezone
