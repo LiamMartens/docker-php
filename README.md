@@ -8,7 +8,7 @@ This image is built on `Alpine`.
 
 ## Volumes
 * `/etc/php[PHP_VERSION]`: For PHP configuration files (default files are copied in if volume is not used)
-* `/var/log/[PHP_VERSION]`: For PHP log files
+* `/var/log/php[PHP_VERSION]`: For PHP log files
 * `/var/www`: For web content
 
 ## Environment
