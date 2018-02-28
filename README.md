@@ -6,7 +6,7 @@ This image is built on `Alpine`.
 * `PHPV`: The PHP version number for selecting the `Alpine` packages
 * Any build arguments from the `Alpine` base image [liammartens/alpine](https://hub.docker.com/r/liammartens/alpine/)
 
-## Volumes
+## Directories
 * `/etc/php[PHP_VERSION]`: For PHP configuration files (default files are copied in if volume is not used)
 * `/var/log/php[PHP_VERSION]`: For PHP log files
 * `/var/www`: For web content
