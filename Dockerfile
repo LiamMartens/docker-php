@@ -92,9 +92,6 @@ RUN mkdir .composer && \
 # @run chown directory
 RUN chown -R ${USER}:${USER} ../${USER}
 
-# @volume add volumes
-VOLUME /etc/php${PHPV} /var/log/php${PHPV} /var/www
-
 # @copy Copy additional run files
 COPY .docker ${DOCKER_DIR}
 
