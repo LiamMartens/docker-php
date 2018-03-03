@@ -8,8 +8,10 @@ This image is built on `Alpine`.
 
 ## Directories
 * `/etc/php[PHP_VERSION]`: For PHP configuration files (default files are copied in if volume is not used)
-* `/var/log/php[PHP_VERSION]`: For PHP log files
 * `/var/www`: For web content
+
+## Logging
+Default `PHP-FPM` configuration files are setup to send the logs to `/proc/self/fd/2`, which is `stdout` for docker.
 
 ## Environment
 You can control the PHP configuration using environment variables. Aside from that the `php-fpm` bind IP is automatically set to the container IP.
