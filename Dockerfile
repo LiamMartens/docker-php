@@ -11,6 +11,7 @@ USER root
 
 # @run Install PHP
 RUN apk add --update --no-cache \
+    fcgi \
     php${PHPV}-mcrypt \
     php${PHPV}-soap \
     php${PHPV}-openssl \
@@ -73,13 +74,13 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" &&
     mv composer.phar /usr/local/bin/composer && chmod +x /usr/local/bin/composer
 
 # @run Create php and web directories
-RUN rm -rf /etc/php${PHPV} && mkdir -p /etc/php${PHPV} /var/log/php${PHPV} /usr/lib/php${PHPV} /var/www
+RUN rm -rf /etc/php${PHPV} && mkdir -p /etc/php${PHPV} /usr/lib/php${PHPV} /var/www
 
 # @copy Copy default config files
 COPY conf/ /etc/php${PHPV}/
 
 # @run chown
-RUN chown -R ${USER}:${USER} /etc/php${PHPV} /var/log/php${PHPV} /usr/lib/php${PHPV} /var/www
+RUN chown -R ${USER}:${USER} /etc/php${PHPV} /usr/lib/php${PHPV} /var/www
 
 # @workdir change workdir
 WORKDIR /home/${USER}
@@ -104,5 +105,8 @@ RUN ln -s $(which php-fpm${PHPV}) /usr/local/bin/php-fpm
 # @user Set user back to non-root
 USER ${USER}
 
+# @healthcheck Simple container healthcheck
+HEALTHCHECK --interval=60s --timeout=30s --start-period=5s --retries=2 CMD SCRIPT_NAME=/ping SCRIPT_FILENAME=/ping REQUEST_METHOD=GET cgi-fcgi -bind -connect 127.0.0.1:9000 || exit 1
+
 # @cmd Set command to start php-fpm
-CMD [ "-c", "php-fpm -F" ]
+CMD [ "-i", "-c", "php-fpm" ]
