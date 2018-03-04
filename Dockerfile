@@ -6,6 +6,9 @@ LABEL maintainer="Liam Martens <hi@liammartens.com>"
 # @env Set PHP version
 ENV PHPV=${PHPV:-7}
 
+# @env Default PHP port
+ENV PHP_PORT=9000
+
 # @user Switch back to root user
 USER root
 
@@ -106,7 +109,7 @@ RUN ln -s $(which php-fpm${PHPV}) /usr/local/bin/php-fpm
 USER ${USER}
 
 # @healthcheck Simple container healthcheck
-HEALTHCHECK --interval=60s --timeout=30s --start-period=5s --retries=2 CMD SCRIPT_NAME=/ping SCRIPT_FILENAME=/ping REQUEST_METHOD=GET cgi-fcgi -bind -connect 127.0.0.1:9000 || exit 1
+HEALTHCHECK --interval=60s --timeout=30s --start-period=5s --retries=2 CMD SCRIPT_NAME=/ping SCRIPT_FILENAME=/ping REQUEST_METHOD=GET cgi-fcgi -bind -connect 127.0.0.1:"${PHP_PORT}" || exit 1
 
 # @cmd Set command to start php-fpm
 CMD [ "-i", "-c", "php-fpm" ]
