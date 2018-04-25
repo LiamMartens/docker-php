@@ -65,7 +65,7 @@ RUN apk add php${PHPV}-dev autoconf yaml-dev yaml alpine-sdk && \
 
 # @run Install php-redis extension
 RUN git clone https://github.com/phpredis/phpredis && \
-    cd phpredis && phpize && ./configure && make && make install && \
+    cd phpredis && phpize && ./configure && make -j4 && make install && \
     cd ../ && rm -rf phpredis
 
 # @run Remove the build packages
