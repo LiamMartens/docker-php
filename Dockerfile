@@ -79,9 +79,6 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" &&
 # @run Create php and web directories
 RUN rm -rf /etc/php${PHPV} && mkdir -p /etc/php${PHPV} /usr/lib/php${PHPV} /var/www
 
-# @copy Copy default config files
-COPY conf/ /etc/php${PHPV}/
-
 # @run chown
 RUN chown -R ${USER}:${USER} /etc/php${PHPV} /usr/lib/php${PHPV} /var/www
 
@@ -97,10 +94,15 @@ RUN mkdir .composer && \
 RUN chown -R ${USER}:${USER} ../${USER}
 
 # @copy Copy additional run files
-COPY .docker ${DOCKER_DIR}
+COPY .docker ${DOCKER_DIR}/
 
-# @run Make the file(s) executable
-RUN chmod -R +x ${DOCKER_DIR}
+# @env Set php path variables
+ENV PHPRC=${DOCKER_ETC_DIR}/php${PHPV}
+ENV PHP_INI_PATH=${DOCKER_ETC_DIR}/php${PHPV}
+ENV PHP_INI_SCAN_DIR=${DOCKER_ETC_DIR}/php${PHPV}/conf.d
+
+# @run Run own script
+RUN own
 
 # @run symlink php-fpm specific version
 RUN ln -s $(which php-fpm${PHPV}) /usr/local/bin/php-fpm
@@ -110,6 +112,3 @@ USER ${USER}
 
 # @healthcheck Simple container healthcheck
 HEALTHCHECK --interval=60s --timeout=30s --start-period=5s --retries=2 CMD SCRIPT_NAME=/ping SCRIPT_FILENAME=/ping REQUEST_METHOD=GET cgi-fcgi -bind -connect 127.0.0.1:"${PHP_PORT}" || exit 1
-
-# @cmd Set command to start php-fpm
-CMD [ "-i", "-c", "php-fpm" ]
